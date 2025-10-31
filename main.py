@@ -1,7 +1,6 @@
 import argparse
 import pandas as pd
 import sys
-sys.path.append("../../..")
 from utils.ncbi_mapper import NCBIMapper
 
 def main() -> None:
