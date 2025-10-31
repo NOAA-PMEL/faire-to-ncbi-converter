@@ -15,8 +15,8 @@ pd.set_option('future.no_silent_downcasting', True)
 
 class NCBIMapper:
 
-    ncbi_sample_excel_template_path = '/home/poseidon/zalmanek/FAIRe-Mapping/MIMARKS.survey.water.6.0.xlsx'
-    ncbi_sra_excel_template_path = '/home/poseidon/zalmanek/FAIRe-Mapping/SRA_metadata.xlsx'
+    ncbi_sample_excel_template_path = 'MIMARKS.survey.water.6.0.xlsx'
+    ncbi_sra_excel_template_path = 'SRA_metadata.xlsx'
     ncbi_organism = "marine metagenome"
     ncbi_sample_sheet_name = "MIMARKS.survey.water.6.0"
     ncbi_sra_sheet_name = 'SRA_data'
@@ -43,8 +43,6 @@ class NCBIMapper:
                             "missing: restricted access"
                             ]
     faire_samp_name_col = "samp_name"
-    faire_stations_in_5km_col = "station_ids_within_5km_of_lat_lon"
-    faire_associated_seqs_col_name = "associatedSequences"
     ncbi_samp_name_col = "*sample_name"
 
     def __init__(self, config_file: str):
