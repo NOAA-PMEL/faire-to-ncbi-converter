@@ -233,7 +233,7 @@ class NCBIMapper:
         dropped_samples = exp_run_df.loc[~mask, self.faire_sample_name_col].unique()
 
         if len(dropped_samples) != 0:
-            raise ValueError("\033[31mThere is a sample missing from the sample csvs that are in this run! Please add sample metadata!\033[0m")
+            raise ValueError(f"\033[31mThere are samples missing from the sample csvs that are in this run! Please add sample metadata for {dropped_samples}!\033[0m")
     
     def get_dict_of_pooled_samps(self, sample_df: pd.DataFrame) -> dict:
         """
