@@ -1,6 +1,3 @@
-import argparse
-import pandas as pd
-import sys
 from utils.ncbi_mapper import NCBIMapper
 
 def main() -> None:
