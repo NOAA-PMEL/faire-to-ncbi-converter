@@ -10,13 +10,13 @@ Converts metabarcoding FAIRe-formatted sample and experiment run metadata into t
 ## This tool makes these assumptions: 
 1. It uses the list of samples in the ExperimentRunMetadata as the source of truth, so if samples exist in the SampleMetadata but not the ExperimentRunMetadata, it will drop those samples in the final NCBI filled out submission template and list those dropped samples in a folder called 'logging' saved to the directory you are saving the ncbi sample excel file to.
 2. The NCBI submission uses one type of library preparation, and that protocol is standardized as a BeBOP and accessible via a public github repository.
-3. To create the NCBI sample_title and sra_title it assumes that the FAIRe geo_loc_name, the assay_name, and samp_category are completed. And for negative and positive controls, it assumes that the neg_cont_type, and pos_cont_type are completeted. If these FAIRe fields aren't completed, the NCBI SRA and sample titles may look strange or code may fail.
+3. To create the NCBI `sample_title` and SRA `title` it assumes that the FAIRe `geo_loc_name`, the `assay_name`, and `samp_category` are completed. And for negative and positive controls; it assumes that the `neg_cont_type`, and `pos_cont_type` are completeted. If these FAIRe fields aren't completed, the NCBI SRA and sample titles may look strange or code may fail.
 
 ## Future Development
 - This tool is really only for metabarcoding, will need to add functionality for qPCR
 - This tool has functionlity for OME's OSU runs - will take out after fixing and submitting these as this pipeline is not broadly applicable.
 
-## Installation
+## Installation and Run
 - Need to install Conda
 
 1. Clone repo:
