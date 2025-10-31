@@ -14,6 +14,7 @@ Converts FAIRe-formatted sample and experiment run metadata into the required fi
 
 ## Future Development
 - This tool is really only for metabarcoding, will need to add functionality for qPCR
+- This tool has functionlity for OME's OSU runs - will take out after fixing and submitting these as this pipeline is not broadly applicable.
 
 ## Installation
 - Need to install Conda

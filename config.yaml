@@ -1,12 +1,12 @@
 run_metadata_csvs: # The path(s) to the FAIRe-standardized ExperimentRunMetadata CSV files that will be submitted to NCBI (for one submission)
-  - /home/poseidon/zalmanek/FAIRe-Mapping/runs/run4/data/run4_faire.csv
+  - run4/data/run4_faire.csv # Add as many files as needed beneath preceded by - 
 
 sample_metadata_project_csvs: # The path(s) to the FAIRe-standardized SAmpleMetadata CSV files for all projects captured by the run. MUST BE THE FINAL PROJECT SAMPLE METADATA CSV! Not the intermittent one per cruise (this will be missing assay_name, rel_cont_id, etc.)
-  - /home/poseidon/zalmanek/FAIRe-Mapping/projects/EcoFoci/data/sampleMetadata_OME_eDNA_EcoFOCI_2020-2023.csv
-  - /home/poseidon/zalmanek/FAIRe-Mapping/projects/AK_Carbon/data/sampleMetadata_OME_eDNA_PMELCarbon_RachelCarson_2022.csv
+  - data/sampleMetadata_OME_eDNA_EcoFOCI_2020-2023.csv # Add as many files as needed beneath preceded by - 
+  - data/sampleMetadata_OME_eDNA_PMELCarbon_RachelCarson_2022.csv
 
 assay_type: metabarcoding # will be either metabarcoding or qPCR
-bioproject_accession: ADD!!!!!! # NCBI bioproject acccession number
+bioproject_accession: PRJNA0522 # NCBI bioproject acccession number
 
 library_prep_info: # info that points to the github repo with the library prep BeBOP. Will get via API
   owner: marinednadude # The ownder of the github repo (must match exactly)
@@ -14,6 +14,6 @@ library_prep_info: # info that points to the github repo with the library prep B
   file_path: Jonah-Ventures-Library-NovaSeq-Preparation-BeBOP.md # The file path/name that points to the BeBOP (must matche exactly)
 
 # The path to where the final NCBI MIMARKS (sample) and SRA (run) excel files will be saved to.
-ncbi_sample_excel_save_path: /home/poseidon/zalmanek/FAIRe-Mapping/runs/run4/ncbi_mapping/ncbi_submission_data/run4_MIMARKS.survey.water.6.0.xlsx
-ncbi_sra_excel_save_path: /home/poseidon/zalmanek/FAIRe-Mapping/runs/run4/ncbi_mapping/ncbi_submission_data/run4_SRA_metadata.xlsx
+ncbi_sample_excel_save_path: ncbi_submission_data/run4_MIMARKS.survey.water.6.0.xlsx
+ncbi_sra_excel_save_path: ncbi_submission_data/run4_SRA_metadata.xlsx
 
