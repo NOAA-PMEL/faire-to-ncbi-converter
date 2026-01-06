@@ -126,7 +126,7 @@ faire_to_ncbi_units = {
     },
     "samp_store_temp": {
         "faire_col": "samp_store_temp",
-        "constant_unit_val": "C"
+        "constant_unit_val": "degC"
     },
     "samp_vol_we_dna_ext": {
         "faire_col": "samp_vol_we_dna_ext",
@@ -150,7 +150,7 @@ faire_to_ncbi_units = {
     },
     "temp": {
         "faire_col": "temp",
-        "constant_unit_val": "C"
+        "constant_unit_val": "degC"
     },
     "tot_depth_water_col": {
         "faire_col": "tot_depth_water_col",
