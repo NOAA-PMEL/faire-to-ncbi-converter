@@ -181,3 +181,12 @@ faire_to_ncbi_units = {
         "constant_unit_val": "m/s"
     }
 }
+
+# Columns in the MIMARKS survey (for samples) that are required. Used to make not applicable
+# for making 'not applicable' for blanks.
+ncbi_required_samp_cols_not_applicable = ['*depth',
+                           '*env_broad_scale',
+                           '*env_local_scale',
+                           '*env_medium',
+                           '*geo_loc_name',
+                           '*lat_lon']

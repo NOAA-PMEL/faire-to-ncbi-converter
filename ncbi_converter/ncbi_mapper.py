@@ -7,7 +7,10 @@ import tempfile
 import re
 import numpy as np
 import yaml
-from utils.ncbi_mapping_data import faire_to_ncbi_units, ncbi_faire_to_ncbi_column_mappings_exact, ncbi_faire_sra_column_mappings_exact
+from ncbi_converter.ncbi_mapping_data import (
+    faire_to_ncbi_units, ncbi_faire_to_ncbi_column_mappings_exact, 
+    ncbi_faire_sra_column_mappings_exact,
+    ncbi_required_samp_cols_not_applicable)
 from openpyxl import load_workbook
 from pathlib import Path
 
@@ -339,8 +342,11 @@ class NCBIMapper:
 
         # Drop empty columns
         last_final_ncbi_df = self.drop_empty_cols(final_ncbi_df)
+
+        # Fill in not applicable for required fields for controls
+        control_filled_df = self.fill_in_negative_reqd_cols(df=last_final_ncbi_df)
         
-        return last_final_ncbi_df
+        return control_filled_df
 
     def get_sra_df(self) -> pd.DataFrame:
 
@@ -691,3 +697,24 @@ class NCBIMapper:
             sample_title = f"Sample {samp_name} {pos_cont_type}"
         
         return sample_title
+    
+    def fill_in_negative_reqd_cols(self, df: pd.DataFrame) -> pd. DataFrame:
+        """
+        Fills in the required columns for control samples (they have NC, 
+        blank, or POSITIVE in the sampe_name) as 'not applicable' if they are
+        blank. Except the column, *organism is always not applicable for 
+        these types of samples."""
+        mask = df[self.ncbi_samp_name_col].str.contains('NC|blank|positive', case=False, na=False)
+        df.loc[mask, ncbi_required_samp_cols_not_applicable] = df.loc[mask, ncbi_required_samp_cols_not_applicable].fillna('not applicable')
+  
+        # Make the '*organism' column always not applicable for controls
+        df.loc[df[self.ncbi_samp_name_col].str.contains('NC|blank|positive', case=False, na=False),
+               '*organism'
+        ] = 'not applicable'
+
+        # Make *collection_date missing if its empty
+        mask = df[self.ncbi_samp_name_col].str.contains('NC|blank|positive', case=False, na=False)
+        df.loc[mask, ['*collection_date']] = df.loc[mask, ['*collection_date']].fillna('missing')
+
+
+        return df
