@@ -57,6 +57,7 @@ class NCBIMapper:
         self.faire_sample_df, self.faire_experiment_run_df = self.prepare_dfs()
         self.ncbi_sample_template_df = self.load_ncbi_template_as_df(file_path=self.ncbi_sample_excel_template_path, sheet_name=self.ncbi_sample_sheet_name, header=self.ncbi_sample_header)
         self.library_prep_bebop = self.retrive_github_bebop(owner=self.config_file['library_prep_info'].get('owner'), repo=self.config_file['library_prep_info'].get('repo'), file_path=self.config_file['library_prep_info'].get('file_path'))
+        self.library_prep_gh_url = self.construct_github_url(owner=self.config_file['library_prep_info'].get('owner'), repo=self.config_file['library_prep_info'].get('repo'), file_path=self.config_file['library_prep_info'].get('file_path'))
         self.ncbi_bioproject_dict = self.create_ncbi_accession_dict_project_and_biosample(id_prefix='PRJNA')
         self.ncbi_biosample_dict = self.create_ncbi_accession_dict_project_and_biosample(id_prefix='SAMN')
         self.ncbi_srr_dict = self.create_ncbi_accession_dict_project_and_biosample(id_prefix='SRR')
@@ -364,7 +365,7 @@ class NCBIMapper:
         updated_df['library_layout'] = self.ncbi_library_layout
         updated_df['platform'] = self.library_prep_bebop['platform']
         updated_df['instrument_model'] = self.library_prep_bebop['instrument']
-        updated_df['design_description'] = f"Sequencing performed at {self.library_prep_bebop['sequencing_location']}"
+        updated_df['design_description'] = f"Sequencing performed at {self.library_prep_bebop['sequencing_location']}: {self.library_prep_gh_url}"
         updated_df['filetype'] = self.ncbi_file_type
         updated_df['title'] = updated_df.apply(
             lambda row: self.create_SRA_title(metadata_row=row),
@@ -718,3 +719,11 @@ class NCBIMapper:
 
 
         return df
+    
+    def construct_github_url(self, owner: str, repo: str, file_path: str, branch: str = None) -> str:
+        """
+        Constructs a clickable Github URL based on the owner, repo, and filepath.
+        Can add branch if not main"""
+        if not branch:
+            branch = 'main'
+        return f'https://github.com/{owner}/{repo}/blob/{branch}/{file_path}'
