@@ -665,14 +665,24 @@ class NCBIMapper:
         else:
             run = run.capitalize()
         
-        if samp_name.startswith('E'): # may need to add additional functionality here
+        if samp_name.startswith('E') and 'NC' not in samp_name: # may need to add additional functionality here
             if 'PPS' in samp_name:
                 type_of_samp = 'PPS-collected seawater'
             else:
                 type_of_samp = 'CTD-collected seawater'
-
             return f"Environmental DNA (eDNA) {self.assay_type} of {type_of_samp} in the {location}: {run}"
-
+        elif any(word in samp_name.lower() for word in ['nc', 'positive', 'blank']):
+            if 'nc' in samp_name.lower():
+                if samp_name in ['SKQ_NC_pool', 'BlankAlaskaSet_NC_pool']:
+                    type_of_samp = 'extraction blank'
+                else:
+                    type_of_samp = 'field negative'
+            elif 'blank' in samp_name.lower():
+                type_of_samp = 'extraction blank'
+            else:
+                type_of_samp = 'positive control'
+            return f"Environmental DNA (eDNA) {self.assay_type} of {type_of_samp} in {run}"
+        
     def create_sample_title(self, metadata_row: pd.Series) -> str:
         """
         Create the sample_title for the sample rows, using the faire_df metdata rows
