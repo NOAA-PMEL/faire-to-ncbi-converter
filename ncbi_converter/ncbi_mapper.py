@@ -7,7 +7,10 @@ import tempfile
 import re
 import numpy as np
 import yaml
-from utils.ncbi_mapping_data import faire_to_ncbi_units, ncbi_faire_to_ncbi_column_mappings_exact, ncbi_faire_sra_column_mappings_exact
+from ncbi_converter.ncbi_mapping_data import (
+    faire_to_ncbi_units, ncbi_faire_to_ncbi_column_mappings_exact, 
+    ncbi_faire_sra_column_mappings_exact,
+    ncbi_required_samp_cols_not_applicable)
 from openpyxl import load_workbook
 from pathlib import Path
 
@@ -54,6 +57,7 @@ class NCBIMapper:
         self.faire_sample_df, self.faire_experiment_run_df = self.prepare_dfs()
         self.ncbi_sample_template_df = self.load_ncbi_template_as_df(file_path=self.ncbi_sample_excel_template_path, sheet_name=self.ncbi_sample_sheet_name, header=self.ncbi_sample_header)
         self.library_prep_bebop = self.retrive_github_bebop(owner=self.config_file['library_prep_info'].get('owner'), repo=self.config_file['library_prep_info'].get('repo'), file_path=self.config_file['library_prep_info'].get('file_path'))
+        self.library_prep_gh_url = self.construct_github_url(owner=self.config_file['library_prep_info'].get('owner'), repo=self.config_file['library_prep_info'].get('repo'), file_path=self.config_file['library_prep_info'].get('file_path'))
         self.ncbi_bioproject_dict = self.create_ncbi_accession_dict_project_and_biosample(id_prefix='PRJNA')
         self.ncbi_biosample_dict = self.create_ncbi_accession_dict_project_and_biosample(id_prefix='SAMN')
         self.ncbi_srr_dict = self.create_ncbi_accession_dict_project_and_biosample(id_prefix='SRR')
@@ -339,8 +343,11 @@ class NCBIMapper:
 
         # Drop empty columns
         last_final_ncbi_df = self.drop_empty_cols(final_ncbi_df)
+
+        # Fill in not applicable for required fields for controls
+        control_filled_df = self.fill_in_negative_reqd_cols(df=last_final_ncbi_df)
         
-        return last_final_ncbi_df
+        return control_filled_df
 
     def get_sra_df(self) -> pd.DataFrame:
 
@@ -358,7 +365,7 @@ class NCBIMapper:
         updated_df['library_layout'] = self.ncbi_library_layout
         updated_df['platform'] = self.library_prep_bebop['platform']
         updated_df['instrument_model'] = self.library_prep_bebop['instrument']
-        updated_df['design_description'] = f"Sequencing performed at {self.library_prep_bebop['sequencing_location']}"
+        updated_df['design_description'] = f"Sequencing performed at {self.library_prep_bebop['sequencing_location']}: {self.library_prep_gh_url}"
         updated_df['filetype'] = self.ncbi_file_type
         updated_df['title'] = updated_df.apply(
             lambda row: self.create_SRA_title(metadata_row=row),
@@ -658,14 +665,24 @@ class NCBIMapper:
         else:
             run = run.capitalize()
         
-        if samp_name.startswith('E'): # may need to add additional functionality here
+        if samp_name.startswith('E') and 'NC' not in samp_name: # may need to add additional functionality here
             if 'PPS' in samp_name:
                 type_of_samp = 'PPS-collected seawater'
             else:
                 type_of_samp = 'CTD-collected seawater'
-
             return f"Environmental DNA (eDNA) {self.assay_type} of {type_of_samp} in the {location}: {run}"
-
+        elif any(word in samp_name.lower() for word in ['nc', 'positive', 'blank']):
+            if 'nc' in samp_name.lower():
+                if samp_name in ['SKQ_NC_pool', 'BlankAlaskaSet_NC_pool']:
+                    type_of_samp = 'extraction blank'
+                else:
+                    type_of_samp = 'field negative'
+            elif 'blank' in samp_name.lower():
+                type_of_samp = 'extraction blank'
+            else:
+                type_of_samp = 'positive control'
+            return f"Environmental DNA (eDNA) {self.assay_type} of {type_of_samp} in {run}"
+        
     def create_sample_title(self, metadata_row: pd.Series) -> str:
         """
         Create the sample_title for the sample rows, using the faire_df metdata rows
@@ -691,3 +708,32 @@ class NCBIMapper:
             sample_title = f"Sample {samp_name} {pos_cont_type}"
         
         return sample_title
+    
+    def fill_in_negative_reqd_cols(self, df: pd.DataFrame) -> pd. DataFrame:
+        """
+        Fills in the required columns for control samples (they have NC, 
+        blank, or POSITIVE in the sampe_name) as 'not applicable' if they are
+        blank. Except the column, *organism is always not applicable for 
+        these types of samples."""
+        mask = df[self.ncbi_samp_name_col].str.contains('NC|blank|positive', case=False, na=False)
+        df.loc[mask, ncbi_required_samp_cols_not_applicable] = df.loc[mask, ncbi_required_samp_cols_not_applicable].fillna('not applicable')
+  
+        # Make the '*organism' column always not applicable for controls
+        df.loc[df[self.ncbi_samp_name_col].str.contains('NC|blank|positive', case=False, na=False),
+               '*organism'
+        ] = 'not applicable'
+
+        # Make *collection_date missing if its empty
+        mask = df[self.ncbi_samp_name_col].str.contains('NC|blank|positive', case=False, na=False)
+        df.loc[mask, ['*collection_date']] = df.loc[mask, ['*collection_date']].fillna('missing')
+
+
+        return df
+    
+    def construct_github_url(self, owner: str, repo: str, file_path: str, branch: str = None) -> str:
+        """
+        Constructs a clickable Github URL based on the owner, repo, and filepath.
+        Can add branch if not main"""
+        if not branch:
+            branch = 'main'
+        return f'https://github.com/{owner}/{repo}/blob/{branch}/{file_path}'
